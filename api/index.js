@@ -1,7 +1,7 @@
 const axios = require('axios');
 
 module.exports = async (req, res) => {
-    // Разрешаем CORS-запросы на всякий случай
+    // Разрешаем CORS-запросы
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Content-Type', 'application/json');
 
@@ -13,8 +13,8 @@ module.exports = async (req, res) => {
     }
 
     try {
-        // Формируем URL к настоящему серверу Telegram
-        const tgUrl = `https://telegram.org{token}/${method}`;
+        // Жесткая и надежная сборка URL через обычное сложение строк
+        const tgUrl = "https://telegram.org" + token + "/" + method;
         
         // Отправляем запрос в Telegram из дата-центра Vercel
         const response = await axios({
