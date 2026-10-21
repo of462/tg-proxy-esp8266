@@ -1,11 +1,9 @@
 const axios = require('axios');
 
 module.exports = async (req, res) => {
-    // Разрешаем CORS-запросы
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Content-Type', 'application/json');
 
-    // Извлекаем параметры из входящего GET/POST запроса от WeMos D1
     const { token, method, ...tgParams } = req.query;
 
     if (!token || !method) {
@@ -13,22 +11,26 @@ module.exports = async (req, res) => {
     }
 
     try {
-        // Жесткая и надежная сборка URL через обычное сложение строк
-        const tgUrl = "https://telegram.org" + token + "/" + method;
+        // Создаем валидный объект URL встроенными средствами Node.js
+        const urlObj = new URL("https://telegram.org" + token + "/" + method);
         
-        // Отправляем запрос в Telegram из дата-центра Vercel
-        const response = await axios({
-            method: req.method,
-            url: tgUrl,
-            data: req.body,
-            params: tgParams,
-            validateStatus: () => true // Не падать при ошибках самого Telegram
+        // Автоматически переносим все остальные параметры (chat_id, text и т.д.)
+        Object.keys(tgParams).forEach(key => {
+            urlObj.searchParams.append(key, tgParams[key]);
         });
 
-        // Возвращаем ответ обратно на плату
+        // Отправляем запрос
+        const response = await axios({
+            method: req.method,
+            url: urlObj.toString(),
+            data: req.body,
+            validateStatus: () => true
+        });
+
         return res.status(response.status).json(response.data);
     } catch (error) {
         return res.status(500).json({ ok: false, description: "Proxy error", error: error.message });
     }
 };
+
 
