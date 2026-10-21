@@ -32,5 +32,3 @@ module.exports = async (req, res) => {
         return res.status(500).json({ ok: false, description: "Proxy error", error: error.message });
     }
 };
-
-
